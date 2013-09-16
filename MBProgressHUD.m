@@ -6,6 +6,15 @@
 
 #import "MBProgressHUD.h"
 
+// Hsoi 2013-09-16 - As of this writing, iOS7 is days away from being released publicly, but
+// MBProgressHUD is still debating on just how it will look in iOS7. Ideally I want to wait
+// and adopt what they do. But I also need to be pro-active for the company here, so I'm going
+// to do something quick and dirty just in case we have to release before the official
+// MBProgressHUD is ready.
+//
+// In short, if we're running iOS7, we'll make the HUD white with black text, and a little
+// drop shadow for 3D. No, this is not ideal look and feel, but it's more iOS7-like than
+// things are now, and again, I'd rather adopt the official look once they get it done.
 
 #if __has_feature(objc_arc)
 	#define MB_AUTORELEASE(exp) exp
@@ -199,6 +208,18 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 		// Make it invisible for now
 		self.alpha = 0.0f;
 		
+        
+        if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1) {
+        }
+        else {
+            self.layer.masksToBounds = NO;
+            self.layer.cornerRadius = 8.0f;
+            self.layer.shadowOffset = CGSizeMake(3.0f, 3.0f);
+            self.layer.shadowRadius = 5.0f;
+            self.layer.shadowOpacity = 0.5f;
+        }
+        
+        
 		taskInProgress = NO;
 		rotationTransform = CGAffineTransformIdentity;
 		
@@ -451,7 +472,12 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	label.textAlignment = MBLabelAlignmentCenter;
 	label.opaque = NO;
 	label.backgroundColor = [UIColor clearColor];
-	label.textColor = [UIColor whiteColor];
+    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1) {
+        label.textColor = [UIColor whiteColor];
+    }
+    else {
+        label.textColor = [UIColor blackColor];
+    }
 	label.font = self.labelFont;
 	label.text = self.labelText;
 	[self addSubview:label];
@@ -462,7 +488,12 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	detailsLabel.textAlignment = MBLabelAlignmentCenter;
 	detailsLabel.opaque = NO;
 	detailsLabel.backgroundColor = [UIColor clearColor];
-	detailsLabel.textColor = [UIColor whiteColor];
+    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1) {
+        detailsLabel.textColor = [UIColor whiteColor];
+    }
+    else {
+        detailsLabel.textColor = [UIColor blackColor];
+    }
 	detailsLabel.numberOfLines = 0;
 	detailsLabel.font = self.detailsLabelFont;
 	detailsLabel.text = self.detailsLabelText;
@@ -477,8 +508,12 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	if (mode == MBProgressHUDModeIndeterminate &&  !isActivityIndicator) {
 		// Update to indeterminate indicator
 		[indicator removeFromSuperview];
+        UIActivityIndicatorViewStyle indicatorStyle = UIActivityIndicatorViewStyleGray;
+        if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1) {
+            indicatorStyle = UIActivityIndicatorViewStyleWhiteLarge;
+        }
 		self.indicator = MB_AUTORELEASE([[UIActivityIndicatorView alloc]
-										 initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge]);
+										 initWithActivityIndicatorStyle:indicatorStyle]);
 		[(UIActivityIndicatorView *)indicator startAnimating];
 		[self addSubview:indicator];
 	}
@@ -624,10 +659,15 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	}
 
     // Set background rect color
-    if (self.color) {
-        CGContextSetFillColorWithColor(context, self.color.CGColor);
-    } else {
-        CGContextSetGrayFillColor(context, 0.0f, self.opacity);
+    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1) {
+        if (self.color) {
+            CGContextSetFillColorWithColor(context, self.color.CGColor);
+        } else {
+            CGContextSetGrayFillColor(context, 0.0f, self.opacity);
+        }
+    }
+    else {
+        CGContextSetFillColorWithColor(context, [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:0.95f].CGColor);
     }
 
 	
