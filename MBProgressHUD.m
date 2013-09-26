@@ -217,6 +217,27 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
             self.layer.shadowOffset = CGSizeMake(3.0f, 3.0f);
             self.layer.shadowRadius = 5.0f;
             self.layer.shadowOpacity = 0.5f;
+
+            // Hsoi 2013-09-26 - and let's be geeky and have the bgView move!
+            UIInterpolatingMotionEffect*    verticalMotionEffect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.y"
+                                                                                                                   type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
+            verticalMotionEffect.minimumRelativeValue = @(-8);
+            verticalMotionEffect.maximumRelativeValue = @(8);
+            
+            UIInterpolatingMotionEffect*    horizontalMotionEffect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.x"
+                                                                                                                     type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
+            horizontalMotionEffect.minimumRelativeValue = @(-8);
+            horizontalMotionEffect.maximumRelativeValue = @(8);
+            
+            UIInterpolatingMotionEffect*    shadowEffect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"layer.shadowOffset"
+                                                                                                           type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
+            
+            shadowEffect.minimumRelativeValue = [NSValue valueWithCGSize:CGSizeMake(-10, 5)];
+            shadowEffect.maximumRelativeValue = [NSValue valueWithCGSize:CGSizeMake(10, 5)];
+
+            UIMotionEffectGroup*    group = [[UIMotionEffectGroup alloc] init];
+            group.motionEffects = @[horizontalMotionEffect, verticalMotionEffect, shadowEffect];
+            [self addMotionEffect:group];
         }
         
         
